@@ -75,13 +75,16 @@ def run_standard_pipeline(text: str, config: dict, target_lang: str = "en") -> d
         "output": step3, "length": len(step3),
     })
 
-    # Step 4: Niutrans — intermediate language → target (second translation hop)
-    step4 = niutrans_translate(
-        step3,
-        source=intermediate_lang,
-        target=_lang_code_to_niutrans(target_lang),
-        api_key=niutrans_key,
-    )
+    # Step 4: Niutrans or Google Translate — intermediate language → target (second translation hop)
+    if niutrans_key:
+        step4 = niutrans_translate(
+            step3,
+            source=intermediate_lang,
+            target=_lang_code_to_niutrans(target_lang),
+            api_key=niutrans_key,
+        )
+    else:
+        step4 = google_translate(step3, source=intermediate_lang, target=target_lang)
     steps.append({
         "step": 4, "engine": "Niutrans",
         "direction": f"{intermediate_lang.upper()} → {target_lang.upper()} (二轮翻译)",
