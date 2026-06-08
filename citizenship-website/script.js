@@ -52,20 +52,24 @@ const I18N = {
     "reviews.r2.who": "— ICSC Client",
 
     "signup.title": "Sign Up for Free Tutoring",
-    "signup.lead": "Fill out the form below. We'll contact you to confirm your match and your first session. You can pick \"N/A\" for any field you'd rather skip.",
-    "form.email": "Email address",
+    "signup.lead": "Fill out the form below. Email is required; you can pick \"N/A\" or \"Skip\" for fields you'd rather not answer.",
+    "form.email": "Email address *",
     "form.lang": "Native language",
     "form.testdate": "Citizenship test date",
     "form.phone": "Phone number",
-    "form.time": "Preferred meeting time during the week",
-    "form.time.pick": "— Pick one —",
-    "form.time.wam": "Weekday mornings",
-    "form.time.wpm": "Weekday afternoons",
-    "form.time.weve": "Weekday evenings",
-    "form.time.endam": "Weekend mornings",
-    "form.time.endpm": "Weekend afternoons",
-    "form.time.endeve": "Weekend evenings",
-    "form.time.flex": "Flexible — any time",
+    "form.sched.title": "Preferred meeting schedule (Pacific Time)",
+    "form.sched.hint": "Check every day and time slot that works for you — you can pick multiple.",
+    "form.sched.skip": "Skip — I haven't decided yet",
+    "form.sched.days": "Days that work for you",
+    "form.sched.weekday": "Weekday time slots — Mon–Fri (Pacific Time)",
+    "form.sched.weekend": "Weekend time slots — Sat–Sun (Pacific Time)",
+    "form.day.mon": "Monday",
+    "form.day.tue": "Tuesday",
+    "form.day.wed": "Wednesday",
+    "form.day.thu": "Thursday",
+    "form.day.fri": "Friday",
+    "form.day.sat": "Saturday",
+    "form.day.sun": "Sunday",
     "form.notes": "Anything else we should know? (optional)",
     "form.submit": "Submit Signup",
     "form.foot": "By submitting, you consent to be contacted at the email or phone number provided.",
@@ -131,20 +135,24 @@ const I18N = {
     "reviews.r2.who": "— Cliente de ICSC",
 
     "signup.title": "Inscríbase para Tutoría Gratis",
-    "signup.lead": "Complete el formulario a continuación. Le contactaremos para confirmar su tutor y su primera sesión. Puede elegir \"N/A\" en cualquier campo que prefiera no responder.",
-    "form.email": "Correo electrónico",
+    "signup.lead": "Complete el formulario a continuación. El correo electrónico es obligatorio; puede elegir \"N/A\" u \"Omitir\" en los campos que prefiera no responder.",
+    "form.email": "Correo electrónico *",
     "form.lang": "Idioma nativo",
     "form.testdate": "Fecha del examen de ciudadanía",
     "form.phone": "Número de teléfono",
-    "form.time": "Horario preferido durante la semana",
-    "form.time.pick": "— Elija uno —",
-    "form.time.wam": "Mañanas entre semana",
-    "form.time.wpm": "Tardes entre semana",
-    "form.time.weve": "Noches entre semana",
-    "form.time.endam": "Mañanas de fin de semana",
-    "form.time.endpm": "Tardes de fin de semana",
-    "form.time.endeve": "Noches de fin de semana",
-    "form.time.flex": "Flexible — cualquier hora",
+    "form.sched.title": "Horario preferido (Hora del Pacífico)",
+    "form.sched.hint": "Marque todos los días y franjas horarias que le convengan — puede elegir varios.",
+    "form.sched.skip": "Omitir — todavía no he decidido",
+    "form.sched.days": "Días que le convienen",
+    "form.sched.weekday": "Franjas entre semana — Lun–Vie (Hora del Pacífico)",
+    "form.sched.weekend": "Franjas de fin de semana — Sáb–Dom (Hora del Pacífico)",
+    "form.day.mon": "Lunes",
+    "form.day.tue": "Martes",
+    "form.day.wed": "Miércoles",
+    "form.day.thu": "Jueves",
+    "form.day.fri": "Viernes",
+    "form.day.sat": "Sábado",
+    "form.day.sun": "Domingo",
     "form.notes": "¿Algo más que debamos saber? (opcional)",
     "form.submit": "Enviar Inscripción",
     "form.foot": "Al enviar, usted acepta ser contactado por el correo o teléfono proporcionado.",
@@ -210,20 +218,24 @@ const I18N = {
     "reviews.r2.who": "— ICSC 学员",
 
     "signup.title": "免费辅导报名",
-    "signup.lead": "请填写下方表格。我们会与您联系，确认辅导员匹配与首次课程。任何不方便填写的栏位都可以选择 \"N/A\"。",
-    "form.email": "电子邮箱",
+    "signup.lead": "请填写下方表格。电子邮箱为必填项；其他栏位可以选择 \"N/A\" 或 \"跳过\"。",
+    "form.email": "电子邮箱 *",
     "form.lang": "母语",
     "form.testdate": "入籍考试日期",
     "form.phone": "电话号码",
-    "form.time": "一周内方便上课的时间",
-    "form.time.pick": "— 请选择 —",
-    "form.time.wam": "工作日上午",
-    "form.time.wpm": "工作日下午",
-    "form.time.weve": "工作日晚上",
-    "form.time.endam": "周末上午",
-    "form.time.endpm": "周末下午",
-    "form.time.endeve": "周末晚上",
-    "form.time.flex": "灵活 — 任何时间",
+    "form.sched.title": "希望上课的时间（太平洋时间）",
+    "form.sched.hint": "请勾选所有方便的日期和时间段——可以多选。",
+    "form.sched.skip": "跳过——我还没决定",
+    "form.sched.days": "方便的日期",
+    "form.sched.weekday": "工作日时段——周一至周五（太平洋时间）",
+    "form.sched.weekend": "周末时段——周六至周日（太平洋时间）",
+    "form.day.mon": "周一",
+    "form.day.tue": "周二",
+    "form.day.wed": "周三",
+    "form.day.thu": "周四",
+    "form.day.fri": "周五",
+    "form.day.sat": "周六",
+    "form.day.sun": "周日",
     "form.notes": "还有其他想告诉我们的事吗？（选填）",
     "form.submit": "提交报名",
     "form.foot": "提交即表示同意我们通过您提供的邮箱或电话与您联系。",
@@ -283,6 +295,31 @@ document.querySelectorAll('input[data-na-for]').forEach(cb => {
     }
   });
 });
+
+// ---------- Skip-schedule toggle: disable all day/time checkboxes ----------
+(() => {
+  const skip = document.getElementById("skip_schedule");
+  if (!skip) return;
+  const groups = ["sched_days", "sched_weekday", "sched_weekend"]
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
+  skip.addEventListener("change", () => {
+    const off = skip.checked;
+    groups.forEach(g => {
+      g.classList.toggle("is-disabled", off);
+      g.querySelectorAll("input[type=checkbox]").forEach(cb => {
+        if (off) {
+          cb.dataset.prevChecked = cb.checked ? "1" : "";
+          cb.checked = false;
+          cb.disabled = true;
+        } else {
+          cb.disabled = false;
+          if (cb.dataset.prevChecked === "1") cb.checked = true;
+        }
+      });
+    });
+  });
+})();
 
 // ---------- Footer year ----------
 document.getElementById("year").textContent = new Date().getFullYear();
