@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://xingjianzhang700-arch.github.io/icsc/sitemap.xml
+Sitemap: https://interlakecitizenship.xyz/sitemap.xml
