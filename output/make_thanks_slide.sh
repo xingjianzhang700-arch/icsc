@@ -12,6 +12,10 @@ print(f'if(lt(t,{S}),0,if(lt(t,{S+FI}),(t-{S})/{FI},if(lt(t,{E-FO}),1,if(lt(t,{E
 }
 
 A_TH=$(alpha 0.0 0.4 $DUR 0.5)
+A_B1=$(alpha 0.6 0.4 $DUR 0.5)
+A_B2=$(alpha 0.9 0.4 $DUR 0.5)
+A_B3=$(alpha 1.2 0.4 $DUR 0.5)
+A_B4=$(alpha 1.5 0.4 $DUR 0.5)
 BARW="min(300,t*900)"
 
 # firefly drift params: x0 amp freq phase ystart yend
@@ -43,8 +47,12 @@ for f in "${FIREFLIES[@]}"; do
 done
 
 FILTER+="[${PREV}]format=yuv420p[bgfinal];"
-FILTER+="[bgfinal]drawtext=fontfile=$FONT:textfile=$TXT/thtitle.txt:fontsize=80:fontcolor=0xfff0d8:x=(w-text_w)/2:y=470:alpha='$A_TH'[v1];"
-FILTER+="[v1]drawbox=x='(iw-${BARW})/2':y=600:w='${BARW}':h=5:color=0xf0d8a8@1.0:t=fill[vout]"
+FILTER+="[bgfinal]drawtext=fontfile=$FONT:textfile=$TXT/thtitle.txt:fontsize=68:fontcolor=0xfff0d8:x=(w-text_w)/2:y=300:alpha='$A_TH'[v1];"
+FILTER+="[v1]drawbox=x='(iw-${BARW})/2':y=400:w='${BARW}':h=5:color=0xf0d8a8@1.0:t=fill[v2];"
+FILTER+="[v2]drawtext=fontfile=$FONT:textfile=$TXT/b1.txt:fontsize=40:fontcolor=white:x=(w-text_w)/2:y=480:alpha='$A_B1'[v3];"
+FILTER+="[v3]drawtext=fontfile=$FONT:textfile=$TXT/b2.txt:fontsize=40:fontcolor=white:x=(w-text_w)/2:y=550:alpha='$A_B2'[v4];"
+FILTER+="[v4]drawtext=fontfile=$FONT:textfile=$TXT/b3.txt:fontsize=40:fontcolor=white:x=(w-text_w)/2:y=620:alpha='$A_B3'[v5];"
+FILTER+="[v5]drawtext=fontfile=$FONT:textfile=$TXT/b4.txt:fontsize=40:fontcolor=white:x=(w-text_w)/2:y=690:alpha='$A_B4'[vout]"
 
 ffmpeg -y \
   -loop 1 -i $TXT/bg_warm.png \
