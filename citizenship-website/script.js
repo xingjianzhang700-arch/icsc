@@ -78,7 +78,7 @@ const I18N = {
 
     "contact.title": "Contact Us",
     "contact.body": "Questions before signing up? Reach out — we'd love to hear from you.",
-    "contact.qr": "Scan or visit our Linktree",
+    "contact.qr": "Scan to visit our website",
 
     "footer.tag": "A student-run program at Interlake High School."
   },
@@ -161,7 +161,7 @@ const I18N = {
 
     "contact.title": "Contáctenos",
     "contact.body": "¿Preguntas antes de inscribirse? Escríbanos — nos encantará saber de usted.",
-    "contact.qr": "Escanee o visite nuestro Linktree",
+    "contact.qr": "Escanee para visitar nuestro sitio web",
 
     "footer.tag": "Un programa dirigido por estudiantes de Interlake High School."
   },
@@ -244,7 +244,7 @@ const I18N = {
 
     "contact.title": "联系我们",
     "contact.body": "报名前有疑问？欢迎与我们联系。",
-    "contact.qr": "扫码或访问我们的 Linktree",
+    "contact.qr": "扫码访问我们的网站",
 
     "footer.tag": "Interlake 高中学生运营项目。"
   }
