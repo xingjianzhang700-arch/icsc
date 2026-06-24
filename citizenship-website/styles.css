@@ -112,8 +112,12 @@ body {
 /* CONTACT */
 .contact-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; align-items: center; }
 .contact-email a, .contact-grid a { color: var(--navy); font-weight: 600; }
-.qr-placeholder { background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; text-align: center; }
-.qr-grid { width: 140px; height: 140px; margin: 0 auto 12px; background: conic-gradient(from 0deg, var(--navy) 25%, transparent 25%) 0 0/24px 24px, var(--white); border: 3px solid var(--navy); border-radius: 6px; }
+.qr-placeholder { background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+.qr-link { display: inline-block; line-height: 0; padding: 8px; background: var(--white); border-radius: 10px; box-shadow: var(--shadow); transition: transform 0.15s ease; }
+.qr-link:hover { transform: scale(1.03); }
+.qr-code { width: 180px; height: 180px; display: block; }
+.qr-url { margin: 10px 0 0; font-weight: 700; color: var(--navy); font-size: 0.95rem; letter-spacing: 0.02em; }
+.qr-placeholder p:not(.qr-url) { margin: 12px 0 4px; color: var(--ink-2); font-size: 0.9rem; }
 @media (max-width: 720px) { .contact-grid { grid-template-columns: 1fr; } }
 
 /* FOOTER */
