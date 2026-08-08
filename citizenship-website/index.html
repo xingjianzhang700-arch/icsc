@@ -179,53 +179,135 @@
           </div>
 
           <div class="form-row schedule-block">
-            <label class="block-label" data-i18n="form.sched.title">Preferred meeting schedule (Pacific Time)</label>
-            <p class="block-hint" data-i18n="form.sched.hint">Check every day and time slot that works for you — you can pick multiple.</p>
-            <label class="na-toggle skip-toggle"><input type="checkbox" id="skip_schedule" name="skip_schedule" value="Yes" /> <span data-i18n="form.sched.skip">Skip — I haven't decided yet</span></label>
+            <label class="block-label" data-i18n="form.sched.title">Preferred meeting times (Pacific Time)</label>
+            <p class="block-hint" data-i18n="form.sched.hint">Pick each day that works, then choose your times for that day. Sessions are 30 minutes.</p>
 
-            <fieldset class="sched-fieldset" id="sched_days">
-              <legend data-i18n="form.sched.days">Days that work for you</legend>
-              <div class="checkbox-grid">
-                <label><input type="checkbox" name="days" value="Monday" /> <span data-i18n="form.day.mon">Monday</span></label>
-                <label><input type="checkbox" name="days" value="Tuesday" /> <span data-i18n="form.day.tue">Tuesday</span></label>
-                <label><input type="checkbox" name="days" value="Wednesday" /> <span data-i18n="form.day.wed">Wednesday</span></label>
-                <label><input type="checkbox" name="days" value="Thursday" /> <span data-i18n="form.day.thu">Thursday</span></label>
-                <label><input type="checkbox" name="days" value="Friday" /> <span data-i18n="form.day.fri">Friday</span></label>
-                <label><input type="checkbox" name="days" value="Saturday" /> <span data-i18n="form.day.sat">Saturday</span></label>
-                <label><input type="checkbox" name="days" value="Sunday" /> <span data-i18n="form.day.sun">Sunday</span></label>
-              </div>
-            </fieldset>
+            <label class="na-toggle skip-toggle">
+              <input type="checkbox" id="skip_schedule" name="skip_schedule" value="Yes" />
+              <span data-i18n="form.sched.skip">Skip — I haven't decided yet</span>
+            </label>
 
-            <fieldset class="sched-fieldset" id="sched_weekday">
-              <legend data-i18n="form.sched.weekday">Weekday time slots — Mon–Fri (Pacific Time)</legend>
-              <div class="checkbox-grid">
-                <label><input type="checkbox" name="weekday_times" value="4:00pm–5:00pm PT" /> 4:00pm–5:00pm</label>
-                <label><input type="checkbox" name="weekday_times" value="5:00pm–6:00pm PT" /> 5:00pm–6:00pm</label>
-                <label><input type="checkbox" name="weekday_times" value="6:00pm–7:00pm PT" /> 6:00pm–7:00pm</label>
-                <label><input type="checkbox" name="weekday_times" value="7:00pm–8:00pm PT" /> 7:00pm–8:00pm</label>
-                <label><input type="checkbox" name="weekday_times" value="8:00pm–9:00pm PT" /> 8:00pm–9:00pm</label>
-                <label><input type="checkbox" name="weekday_times" value="9:00pm–10:00pm PT" /> 9:00pm–10:00pm</label>
+            <div class="day-list" id="day_list">
+              <div class="day-row" data-day="monday">
+                <label class="day-head">
+                  <input type="checkbox" class="day-toggle" data-target="times_monday" />
+                  <span class="day-name" data-i18n="form.day.mon">Monday</span>
+                  <span class="day-hours">4:00 PM – 10:00 PM</span>
+                </label>
+                <div class="time-chips" id="times_monday">
+                  <label class="chip"><input type="checkbox" name="Monday" value="4:00 PM" /><span>4:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Monday" value="5:00 PM" /><span>5:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Monday" value="6:00 PM" /><span>6:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Monday" value="7:00 PM" /><span>7:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Monday" value="8:00 PM" /><span>8:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Monday" value="9:00 PM" /><span>9:00 PM</span></label>
+                </div>
               </div>
-            </fieldset>
-
-            <fieldset class="sched-fieldset" id="sched_weekend">
-              <legend data-i18n="form.sched.weekend">Weekend time slots — Sat–Sun (Pacific Time)</legend>
-              <div class="checkbox-grid">
-                <label><input type="checkbox" name="weekend_times" value="9:00am–10:00am PT" /> 9:00am–10:00am</label>
-                <label><input type="checkbox" name="weekend_times" value="10:00am–11:00am PT" /> 10:00am–11:00am</label>
-                <label><input type="checkbox" name="weekend_times" value="11:00am–12:00pm PT" /> 11:00am–12:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="12:00pm–1:00pm PT" /> 12:00pm–1:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="1:00pm–2:00pm PT" /> 1:00pm–2:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="2:00pm–3:00pm PT" /> 2:00pm–3:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="3:00pm–4:00pm PT" /> 3:00pm–4:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="4:00pm–5:00pm PT" /> 4:00pm–5:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="5:00pm–6:00pm PT" /> 5:00pm–6:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="6:00pm–7:00pm PT" /> 6:00pm–7:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="7:00pm–8:00pm PT" /> 7:00pm–8:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="8:00pm–9:00pm PT" /> 8:00pm–9:00pm</label>
-                <label><input type="checkbox" name="weekend_times" value="9:00pm–10:00pm PT" /> 9:00pm–10:00pm</label>
+              <div class="day-row" data-day="tuesday">
+                <label class="day-head">
+                  <input type="checkbox" class="day-toggle" data-target="times_tuesday" />
+                  <span class="day-name" data-i18n="form.day.tue">Tuesday</span>
+                  <span class="day-hours">4:00 PM – 10:00 PM</span>
+                </label>
+                <div class="time-chips" id="times_tuesday">
+                  <label class="chip"><input type="checkbox" name="Tuesday" value="4:00 PM" /><span>4:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Tuesday" value="5:00 PM" /><span>5:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Tuesday" value="6:00 PM" /><span>6:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Tuesday" value="7:00 PM" /><span>7:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Tuesday" value="8:00 PM" /><span>8:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Tuesday" value="9:00 PM" /><span>9:00 PM</span></label>
+                </div>
               </div>
-            </fieldset>
+              <div class="day-row" data-day="wednesday">
+                <label class="day-head">
+                  <input type="checkbox" class="day-toggle" data-target="times_wednesday" />
+                  <span class="day-name" data-i18n="form.day.wed">Wednesday</span>
+                  <span class="day-hours">4:00 PM – 10:00 PM</span>
+                </label>
+                <div class="time-chips" id="times_wednesday">
+                  <label class="chip"><input type="checkbox" name="Wednesday" value="4:00 PM" /><span>4:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Wednesday" value="5:00 PM" /><span>5:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Wednesday" value="6:00 PM" /><span>6:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Wednesday" value="7:00 PM" /><span>7:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Wednesday" value="8:00 PM" /><span>8:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Wednesday" value="9:00 PM" /><span>9:00 PM</span></label>
+                </div>
+              </div>
+              <div class="day-row" data-day="thursday">
+                <label class="day-head">
+                  <input type="checkbox" class="day-toggle" data-target="times_thursday" />
+                  <span class="day-name" data-i18n="form.day.thu">Thursday</span>
+                  <span class="day-hours">4:00 PM – 10:00 PM</span>
+                </label>
+                <div class="time-chips" id="times_thursday">
+                  <label class="chip"><input type="checkbox" name="Thursday" value="4:00 PM" /><span>4:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Thursday" value="5:00 PM" /><span>5:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Thursday" value="6:00 PM" /><span>6:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Thursday" value="7:00 PM" /><span>7:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Thursday" value="8:00 PM" /><span>8:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Thursday" value="9:00 PM" /><span>9:00 PM</span></label>
+                </div>
+              </div>
+              <div class="day-row" data-day="friday">
+                <label class="day-head">
+                  <input type="checkbox" class="day-toggle" data-target="times_friday" />
+                  <span class="day-name" data-i18n="form.day.fri">Friday</span>
+                  <span class="day-hours">4:00 PM – 10:00 PM</span>
+                </label>
+                <div class="time-chips" id="times_friday">
+                  <label class="chip"><input type="checkbox" name="Friday" value="4:00 PM" /><span>4:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Friday" value="5:00 PM" /><span>5:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Friday" value="6:00 PM" /><span>6:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Friday" value="7:00 PM" /><span>7:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Friday" value="8:00 PM" /><span>8:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Friday" value="9:00 PM" /><span>9:00 PM</span></label>
+                </div>
+              </div>
+              <div class="day-row" data-day="saturday">
+                <label class="day-head">
+                  <input type="checkbox" class="day-toggle" data-target="times_saturday" />
+                  <span class="day-name" data-i18n="form.day.sat">Saturday</span>
+                  <span class="day-hours">9:00 AM – 10:00 PM</span>
+                </label>
+                <div class="time-chips" id="times_saturday">
+                  <label class="chip"><input type="checkbox" name="Saturday" value="9:00 AM" /><span>9:00 AM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="10:00 AM" /><span>10:00 AM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="11:00 AM" /><span>11:00 AM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="12:00 PM" /><span>12:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="1:00 PM" /><span>1:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="2:00 PM" /><span>2:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="3:00 PM" /><span>3:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="4:00 PM" /><span>4:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="5:00 PM" /><span>5:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="6:00 PM" /><span>6:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="7:00 PM" /><span>7:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="8:00 PM" /><span>8:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Saturday" value="9:00 PM" /><span>9:00 PM</span></label>
+                </div>
+              </div>
+              <div class="day-row" data-day="sunday">
+                <label class="day-head">
+                  <input type="checkbox" class="day-toggle" data-target="times_sunday" />
+                  <span class="day-name" data-i18n="form.day.sun">Sunday</span>
+                  <span class="day-hours">9:00 AM – 10:00 PM</span>
+                </label>
+                <div class="time-chips" id="times_sunday">
+                  <label class="chip"><input type="checkbox" name="Sunday" value="9:00 AM" /><span>9:00 AM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="10:00 AM" /><span>10:00 AM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="11:00 AM" /><span>11:00 AM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="12:00 PM" /><span>12:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="1:00 PM" /><span>1:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="2:00 PM" /><span>2:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="3:00 PM" /><span>3:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="4:00 PM" /><span>4:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="5:00 PM" /><span>5:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="6:00 PM" /><span>6:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="7:00 PM" /><span>7:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="8:00 PM" /><span>8:00 PM</span></label>
+                  <label class="chip"><input type="checkbox" name="Sunday" value="9:00 PM" /><span>9:00 PM</span></label>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="form-row">
