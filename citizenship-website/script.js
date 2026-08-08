@@ -57,12 +57,9 @@ const I18N = {
     "form.lang": "Native language",
     "form.testdate": "Citizenship test date",
     "form.phone": "Phone number",
-    "form.sched.title": "Preferred meeting schedule (Pacific Time)",
-    "form.sched.hint": "Check every day and time slot that works for you — you can pick multiple.",
+    "form.sched.title": "Preferred meeting times (Pacific Time)",
+    "form.sched.hint": "Pick each day that works, then choose your times for that day. Sessions are 30 minutes.",
     "form.sched.skip": "Skip — I haven't decided yet",
-    "form.sched.days": "Days that work for you",
-    "form.sched.weekday": "Weekday time slots — Mon–Fri (Pacific Time)",
-    "form.sched.weekend": "Weekend time slots — Sat–Sun (Pacific Time)",
     "form.day.mon": "Monday",
     "form.day.tue": "Tuesday",
     "form.day.wed": "Wednesday",
@@ -140,12 +137,9 @@ const I18N = {
     "form.lang": "Idioma nativo",
     "form.testdate": "Fecha del examen de ciudadanía",
     "form.phone": "Número de teléfono",
-    "form.sched.title": "Horario preferido (Hora del Pacífico)",
-    "form.sched.hint": "Marque todos los días y franjas horarias que le convengan — puede elegir varios.",
+    "form.sched.title": "Horarios preferidos (Hora del Pacífico)",
+    "form.sched.hint": "Elija cada día que le convenga y luego marque sus horas para ese día. Las sesiones duran 30 minutos.",
     "form.sched.skip": "Omitir — todavía no he decidido",
-    "form.sched.days": "Días que le convienen",
-    "form.sched.weekday": "Franjas entre semana — Lun–Vie (Hora del Pacífico)",
-    "form.sched.weekend": "Franjas de fin de semana — Sáb–Dom (Hora del Pacífico)",
     "form.day.mon": "Lunes",
     "form.day.tue": "Martes",
     "form.day.wed": "Miércoles",
@@ -224,11 +218,8 @@ const I18N = {
     "form.testdate": "入籍考试日期",
     "form.phone": "电话号码",
     "form.sched.title": "希望上课的时间（太平洋时间）",
-    "form.sched.hint": "请勾选所有方便的日期和时间段——可以多选。",
+    "form.sched.hint": "先勾选方便的日期，再为该日期选择时间。每节课 30 分钟。",
     "form.sched.skip": "跳过——我还没决定",
-    "form.sched.days": "方便的日期",
-    "form.sched.weekday": "工作日时段——周一至周五（太平洋时间）",
-    "form.sched.weekend": "周末时段——周六至周日（太平洋时间）",
     "form.day.mon": "周一",
     "form.day.tue": "周二",
     "form.day.wed": "周三",
@@ -296,29 +287,33 @@ document.querySelectorAll('input[data-na-for]').forEach(cb => {
   });
 });
 
-// ---------- Skip-schedule toggle: disable all day/time checkboxes ----------
+// ---------- Per-day schedule picker ----------
 (() => {
-  const skip = document.getElementById("skip_schedule");
-  if (!skip) return;
-  const groups = ["sched_days", "sched_weekday", "sched_weekend"]
-    .map(id => document.getElementById(id))
-    .filter(Boolean);
-  skip.addEventListener("change", () => {
-    const off = skip.checked;
-    groups.forEach(g => {
-      g.classList.toggle("is-disabled", off);
-      g.querySelectorAll("input[type=checkbox]").forEach(cb => {
-        if (off) {
-          cb.dataset.prevChecked = cb.checked ? "1" : "";
-          cb.checked = false;
-          cb.disabled = true;
-        } else {
-          cb.disabled = false;
-          if (cb.dataset.prevChecked === "1") cb.checked = true;
-        }
-      });
+  const list = document.getElementById("day_list");
+  if (!list) return;
+
+  // Checking a day reveals its time chips; unchecking clears them so
+  // hidden selections never get submitted.
+  list.querySelectorAll(".day-toggle").forEach(toggle => {
+    const row = toggle.closest(".day-row");
+    toggle.addEventListener("change", () => {
+      row.classList.toggle("is-open", toggle.checked);
+      if (!toggle.checked) {
+        row.querySelectorAll('.chip input[type="checkbox"]').forEach(c => { c.checked = false; });
+      }
     });
   });
+
+  // "Skip" blanks the whole picker.
+  const skip = document.getElementById("skip_schedule");
+  if (skip) {
+    skip.addEventListener("change", () => {
+      list.classList.toggle("is-disabled", skip.checked);
+      if (!skip.checked) return;
+      list.querySelectorAll('input[type="checkbox"]').forEach(c => { c.checked = false; });
+      list.querySelectorAll(".day-row").forEach(r => r.classList.remove("is-open"));
+    });
+  }
 })();
 
 // ---------- Footer year ----------
