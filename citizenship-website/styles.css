@@ -126,14 +126,68 @@ body {
 .footer-thin { opacity: 0.78; margin: 0; }
 .site-footer p { margin: 0; }
 
-/* SCHEDULE BLOCK (signup form) */
+/* SCHEDULE PICKER (signup form) */
 .req { color: #c0392b; font-weight: 700; margin-left: 2px; }
 .schedule-block .block-label { font-weight: 700; font-size: 1.02rem; color: var(--navy); margin-bottom: 4px; display: block; }
 .schedule-block .block-hint { margin: 0 0 12px; color: var(--ink-2); font-size: 0.92rem; }
-.skip-toggle { margin: 4px 0 14px !important; }
-.sched-fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 12px; margin: 0 0 14px; background: var(--cream); }
-.sched-fieldset legend { font-weight: 600; color: var(--navy); padding: 0 6px; font-size: 0.95rem; }
-.checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px 14px; }
-.checkbox-grid label { display: flex !important; align-items: center; gap: 8px; font-weight: 400 !important; font-size: 0.93rem; color: var(--ink); cursor: pointer; margin: 0 !important; padding: 4px 0; }
-.checkbox-grid input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; }
-.sched-fieldset.is-disabled { opacity: 0.45; pointer-events: none; }
+.skip-toggle { margin: 4px 0 16px !important; }
+
+.day-list { display: flex; flex-direction: column; gap: 8px; }
+
+.day-row { border: 1px solid var(--border); border-radius: 12px; background: var(--cream); overflow: hidden; transition: border-color 0.15s ease, background 0.15s ease; }
+.day-row.is-open { border-color: var(--navy); background: var(--white); }
+
+.day-head {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  margin: 0 !important;
+  padding: 13px 16px;
+  cursor: pointer;
+  font-weight: 600 !important;
+  color: var(--ink);
+  user-select: none;
+}
+.day-head input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--navy); cursor: pointer; flex: none; }
+.day-name { flex: 1; font-size: 1rem; }
+.day-hours { font-size: 0.82rem; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
+.day-row.is-open .day-name { color: var(--navy); }
+
+/* Collapsed by default; JS adds .is-open to reveal */
+.time-chips {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 16px 16px;
+  border-top: 1px dashed var(--border);
+}
+.day-row.is-open .time-chips { display: flex; }
+
+.chip { position: relative; margin: 0 !important; }
+.chip input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.chip span {
+  display: inline-block;
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  white-space: nowrap;
+}
+.chip span:hover { border-color: var(--navy); color: var(--navy); }
+.chip input:checked + span { background: var(--navy); border-color: var(--navy); color: var(--white); }
+.chip input:focus-visible + span { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+.day-list.is-disabled { opacity: 0.45; pointer-events: none; }
+
+@media (max-width: 480px) {
+  .day-head { padding: 12px 13px; gap: 10px; }
+  .day-hours { font-size: 0.75rem; }
+  .time-chips { padding: 12px 13px 14px; gap: 7px; }
+  .chip span { padding: 7px 12px; font-size: 0.84rem; }
+}
