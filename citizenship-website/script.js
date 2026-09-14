@@ -77,6 +77,12 @@ const I18N = {
     "contact.body": "Questions before signing up? Reach out — we'd love to hear from you.",
     "contact.qr": "Scan to visit our website",
 
+    "scrub.b1": "Your citizenship journey starts here",
+    "scrub.b2": "Free 1-on-1 tutoring for the U.S. citizenship test",
+    "scrub.b3": "Sign up today — it's completely free",
+    "scrub.cta": "Sign Up — It's Free",
+    "scrub.hint": "Scroll to explore",
+
     "footer.tag": "A student-run program at Interlake High School."
   },
 
@@ -157,6 +163,12 @@ const I18N = {
     "contact.body": "¿Preguntas antes de inscribirse? Escríbanos — nos encantará saber de usted.",
     "contact.qr": "Escanee para visitar nuestro sitio web",
 
+    "scrub.b1": "Tu camino a la ciudadanía empieza aquí",
+    "scrub.b2": "Tutoría gratis 1 a 1 para el examen de ciudadanía",
+    "scrub.b3": "Regístrate hoy — es totalmente gratis",
+    "scrub.cta": "Inscríbete — Es Gratis",
+    "scrub.hint": "Desplázate para explorar",
+
     "footer.tag": "Un programa dirigido por estudiantes de Interlake High School."
   },
 
@@ -236,6 +248,12 @@ const I18N = {
     "contact.title": "联系我们",
     "contact.body": "报名前有疑问？欢迎与我们联系。",
     "contact.qr": "扫码访问我们的网站",
+
+    "scrub.b1": "你的公民之路从这里开始",
+    "scrub.b2": "免费一对一美国公民考试辅导",
+    "scrub.b3": "今天就报名 — 完全免费",
+    "scrub.cta": "立即免费报名",
+    "scrub.hint": "向下滚动浏览",
 
     "footer.tag": "Interlake 高中学生运营项目。"
   }
@@ -318,3 +336,118 @@ document.querySelectorAll('input[data-na-for]').forEach(cb => {
 
 // ---------- Footer year ----------
 document.getElementById("year").textContent = new Date().getFullYear();
+
+// ---------- Cinematic scroll-scrub (White House push-in) ----------
+(() => {
+  const section = document.getElementById("scrub");
+  if (!section) return;
+
+  const sticky   = section.querySelector(".scrub-sticky");
+  const video    = section.querySelector(".scrub-video");
+  const beats    = Array.from(section.querySelectorAll(".scrub-beat"));
+  const cta       = section.querySelector(".scrub-cta");
+  const bar       = section.querySelector(".scrub-progress span");
+  const hint      = section.querySelector(".scrub-hint");
+  const N          = beats.length;
+
+  const desktop = window.matchMedia("(min-width: 761px)");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  let live = false;
+  let ready = false;       // video has enough data to seek
+  let curTime = 0;         // smoothed playhead
+  let targetTime = 0;
+  let progress = 0;
+  let rafId = null;
+
+  // Opacity for beat i (0..N-1) given scroll progress 0..1.
+  // Each beat owns a band; first holds at the start, last holds at the end.
+  function beatOpacity(i, p) {
+    const c = (i + 0.5) / N;      // band center
+    const w = 0.62 / N;           // fade half-width (slight overlap = cross-fade)
+    if (i === 0 && p <= c) return 1;
+    if (i === N - 1 && p >= c) return 1;
+    return Math.max(0, 1 - Math.abs(p - c) / w);
+  }
+
+  function computeProgress() {
+    const rect = section.getBoundingClientRect();
+    const dist = rect.height - window.innerHeight;
+    if (dist <= 0) return 0;
+    return Math.min(1, Math.max(0, -rect.top / dist));
+  }
+
+  function paintCaptions(p) {
+    for (let i = 0; i < N; i++) {
+      const o = beatOpacity(i, p);
+      beats[i].style.opacity = o.toFixed(3);
+      // gentle rise as each line comes in
+      beats[i].style.transform = `translate(-50%, calc(-50% + ${(1 - o) * 18}px))`;
+    }
+    // CTA rides with the final beat
+    const last = beatOpacity(N - 1, p);
+    if (cta) {
+      cta.style.opacity = last.toFixed(3);
+      cta.classList.toggle("is-on", last > 0.6);
+    }
+    if (bar) bar.style.width = (p * 100).toFixed(2) + "%";
+    if (hint) hint.style.opacity = p > 0.03 ? "0" : "1";
+  }
+
+  function loop() {
+    progress = computeProgress();
+    targetTime = progress * (video.duration || 0);
+    // ease the playhead toward the target for a buttery scrub
+    curTime += (targetTime - curTime) * 0.18;
+    if (ready && Math.abs(curTime - video.currentTime) > 0.01) {
+      try { video.currentTime = curTime; } catch (e) {}
+    }
+    // subtle extra push-in on top of the footage's own dolly
+    video.style.transform = `scale(${(1 + progress * 0.06).toFixed(4)})`;
+    paintCaptions(progress);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function enable() {
+    if (live) return;
+    live = true;
+    section.classList.add("is-live");
+    if (!video.getAttribute("src") && video.dataset.src) {
+      video.src = video.dataset.src;
+    }
+    video.preload = "auto";
+    video.pause();
+    const start = () => {
+      ready = true;
+      try { video.currentTime = 0; } catch (e) {}
+    };
+    if (video.readyState >= 2) start();
+    else video.addEventListener("loadeddata", start, { once: true });
+    video.load();
+    if (!rafId) loop();
+  }
+
+  function disable() {
+    if (!live) return;
+    live = false;
+    section.classList.remove("is-live");
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    // reset inline styles so the static layout renders cleanly
+    beats.forEach(b => { b.style.opacity = ""; b.style.transform = ""; });
+    if (cta) { cta.style.opacity = ""; cta.classList.remove("is-on"); }
+    video.style.transform = "";
+    video.removeAttribute("src");
+    video.load();  // drop the buffered file on mobile
+    ready = false;
+  }
+
+  function evaluate() {
+    if (desktop.matches && !reduced.matches) enable();
+    else disable();
+  }
+
+  evaluate();
+  // Re-evaluate if the viewport crosses the breakpoint or motion pref changes
+  (desktop.addEventListener ? desktop.addEventListener("change", evaluate) : desktop.addListener(evaluate));
+  (reduced.addEventListener ? reduced.addEventListener("change", evaluate) : reduced.addListener(evaluate));
+})();
