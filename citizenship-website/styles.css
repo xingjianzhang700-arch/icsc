@@ -207,7 +207,14 @@ body {
   align-items: center;
   justify-content: center;
 }
-.scrub-video {
+.scrub-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+.scrub-fallback {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -215,6 +222,8 @@ body {
   object-fit: cover;
   display: block;
 }
+.scrub.is-live .scrub-canvas { display: block; }
+.scrub.is-live .scrub-fallback { display: none; }
 /* Dark scrim + vignette so white/bright footage keeps text readable */
 .scrub-scrim {
   position: absolute;
@@ -296,7 +305,7 @@ body {
   height: 100vh;
   min-height: 100vh;
 }
-.scrub.is-live .scrub-video { will-change: transform; }
+.scrub.is-live .scrub-canvas { will-change: transform; }
 .scrub.is-live .scrub-captions {
   position: absolute;
   left: 50%;
