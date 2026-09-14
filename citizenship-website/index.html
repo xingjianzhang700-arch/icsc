@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script>document.documentElement.classList.add('js');</script>
+  
 
   <title>Interlake Citizenship Services Club (ICSC) — Free US Naturalization Test Tutoring</title>
   <meta name="description" content="Free 1-on-1 online tutoring for the US Naturalization (citizenship) test from Interlake High School students. We cover Civics, Reading, Writing, and Speaking. 30-minute Zoom sessions each week." />
@@ -89,39 +89,41 @@
             <li><strong data-i18n="hero.b3.k">30 min / week</strong> <span data-i18n="hero.b3.v">— flexible Zoom sessions</span></li>
           </ul>
         </div>
-        <aside class="hero-card hero-3d" id="hero3d">
-          <canvas class="hero-canvas" aria-hidden="true"></canvas>
-          <div class="hero-3d-badge" aria-hidden="true" data-i18n="hero.card.badge">Drag / move your mouse</div>
-          <div class="hero-3d-fallback">
-            <div class="sparkle s1">✦</div>
-            <div class="sparkle s2">✧</div>
-            <h2 data-i18n="hero.card.title">We cover all parts of the test</h2>
-            <ul class="coverage-list">
-              <li>📘 <span data-i18n="hero.card.civics">Civics</span></li>
-              <li>📖 <span data-i18n="hero.card.reading">Reading</span></li>
-              <li>✍️ <span data-i18n="hero.card.writing">Writing</span></li>
-              <li>🗣️ <span data-i18n="hero.card.speaking">Speaking</span></li>
-            </ul>
+        <aside class="study-studio" id="hero3d">
+          <div class="studio-heading"><span class="studio-dot" aria-hidden="true"></span><span data-i18n="motion.studio">A little practice. A new chapter.</span></div>
+          <div class="scene-viewport">
+            <canvas class="scene-canvas" aria-hidden="true"></canvas>
+            <div class="scene-fallback" aria-hidden="true"><div class="fallback-book"><span>★</span><span>ICSC</span></div></div>
           </div>
+          <div class="scene-controls" hidden>
+            <label class="scene-range"><span data-i18n="motion.rotate">Rotate the scene</span><input type="range" min="-60" max="60" value="0" step="1" data-rotation /></label>
+            <button class="scene-reset" type="button" data-reset data-i18n="motion.reset">Reset view</button>
+          </div>
+          <h2 data-i18n="hero.card.title">We cover all parts of the test</h2>
+          <ul class="studio-subjects"><li data-i18n="hero.card.civics">Civics</li><li data-i18n="hero.card.reading">Reading</li><li data-i18n="hero.card.writing">Writing</li><li data-i18n="hero.card.speaking">Speaking</li></ul>
         </aside>
       </div>
     </section>
 
-    <section class="scrub" id="scrub" aria-label="Interlake Citizenship Services Club">
-      <div class="scrub-sticky">
-        <canvas class="scrub-canvas" aria-hidden="true"></canvas>
-        <img class="scrub-fallback" src="whitehouse-poster.jpg" alt="The White House" loading="lazy" />
-        <div class="scrub-scrim" aria-hidden="true"></div>
-
-        <div class="scrub-captions">
-          <p class="scrub-beat" data-i18n="scrub.b1">Your citizenship journey starts here</p>
-          <p class="scrub-beat" data-i18n="scrub.b2">Free 1-on-1 tutoring for the U.S. citizenship test</p>
-          <p class="scrub-beat" data-i18n="scrub.b3">Sign up today — it's completely free</p>
-          <a href="#signup" class="btn btn-primary scrub-cta" data-i18n="scrub.cta">Sign Up — It's Free</a>
+    <section class="journey" id="scrub" aria-labelledby="journey-title">
+      <div class="container journey-inner">
+        <div class="journey-copy">
+          <p class="eyebrow" data-i18n="motion.eyebrow">Step into your next chapter</p>
+          <h2 id="journey-title" data-i18n="scrub.b1">Your citizenship journey starts here</h2>
+          <p data-i18n="scrub.b2">Free 1-on-1 tutoring for the U.S. citizenship test</p>
+          <a href="#signup" class="btn btn-primary" data-i18n="scrub.cta">Sign Up — It's Free</a>
         </div>
-
-        <div class="scrub-progress" aria-hidden="true"><span></span></div>
-        <div class="scrub-hint" aria-hidden="true" data-i18n="scrub.hint">Scroll to explore</div>
+        <div class="landmark-studio" id="landmark3d">
+          <div class="scene-viewport">
+            <canvas class="scene-canvas" aria-hidden="true"></canvas>
+            <div class="scene-fallback"><img src="whitehouse-poster.jpg" alt="The White House" loading="lazy" /></div>
+          </div>
+          <div class="scene-controls" hidden>
+            <label class="scene-range"><span data-i18n="motion.explore">Explore the White House</span><input type="range" min="-60" max="60" value="0" step="1" data-rotation /></label>
+            <button class="scene-reset" type="button" data-reset data-i18n="motion.reset">Reset view</button>
+          </div>
+          <p class="model-caption" data-i18n="motion.model">The White House · a miniature in 3D</p>
+        </div>
       </div>
     </section>
 
@@ -135,15 +137,15 @@
     <section class="stats-band" aria-label="At a glance">
       <div class="container stats-grid">
         <div class="stat">
-          <div class="stat-num"><span data-count="100">0</span></div>
+          <div class="stat-num"><span data-count="100">100</span></div>
           <p class="stat-label" data-i18n="stats.a">USCIS civics questions covered</p>
         </div>
         <div class="stat">
-          <div class="stat-num"><span data-count="30">0</span></div>
+          <div class="stat-num"><span data-count="30">30</span></div>
           <p class="stat-label" data-i18n="stats.b">minutes per weekly session</p>
         </div>
         <div class="stat">
-          <div class="stat-num"><span data-count="100">0</span><span class="stat-unit">%</span></div>
+          <div class="stat-num"><span data-count="100">100</span><span class="stat-unit">%</span></div>
           <p class="stat-label" data-i18n="stats.c">free — no cost, ever</p>
         </div>
       </div>
@@ -153,10 +155,10 @@
       <div class="container">
         <h2 class="section-title" data-i18n="coverage.title">What We Cover</h2>
         <div class="grid-4">
-          <div class="card"><div class="card-icon">📘</div><h3 data-i18n="coverage.civics.title">Civics</h3><p data-i18n="coverage.civics.body">Practice all 100 USCIS civics questions on US history and government.</p></div>
-          <div class="card"><div class="card-icon">📖</div><h3 data-i18n="coverage.reading.title">Reading</h3><p data-i18n="coverage.reading.body">Read the official USCIS vocabulary in clear, confident sentences.</p></div>
-          <div class="card"><div class="card-icon">✍️</div><h3 data-i18n="coverage.writing.title">Writing</h3><p data-i18n="coverage.writing.body">Master sentence dictation from the USCIS writing word list.</p></div>
-          <div class="card"><div class="card-icon">🗣️</div><h3 data-i18n="coverage.speaking.title">Speaking</h3><p data-i18n="coverage.speaking.body">Build comfort answering interview questions out loud with a real person.</p></div>
+          <div class="card subject-card"><div class="mini-scene mini-civics" aria-hidden="true"><div class="civic-seal"><span>★</span></div><div class="mini-ground"></div></div><h3 data-i18n="coverage.civics.title">Civics</h3><p data-i18n="coverage.civics.body">Practice all 100 USCIS civics questions on US history and government.</p><button type="button" class="subject-play" hidden aria-pressed="false" data-i18n="motion.civics">Turn the seal</button></div>
+          <div class="card subject-card"><div class="mini-scene mini-reading" aria-hidden="true"><div class="mini-book"><div class="mini-pages"></div><div class="mini-cover"><span>★</span></div></div><div class="mini-ground"></div></div><h3 data-i18n="coverage.reading.title">Reading</h3><p data-i18n="coverage.reading.body">Read the official USCIS vocabulary in clear, confident sentences.</p><button type="button" class="subject-play" hidden aria-pressed="false" data-i18n="motion.reading">Open the book</button></div>
+          <div class="card subject-card"><div class="mini-scene mini-writing" aria-hidden="true"><div class="mini-paper"><i></i><i></i><i></i><i></i></div><div class="mini-pencil"></div><div class="mini-ground"></div></div><h3 data-i18n="coverage.writing.title">Writing</h3><p data-i18n="coverage.writing.body">Master sentence dictation from the USCIS writing word list.</p><button type="button" class="subject-play" hidden aria-pressed="false" data-i18n="motion.writing">Try the pencil</button></div>
+          <div class="card subject-card"><div class="mini-scene mini-speaking" aria-hidden="true"><div class="speech-bubble bubble-back"><i></i><i></i><i></i></div><div class="speech-bubble bubble-front"><i></i><i></i><i></i></div><div class="mini-ground"></div></div><h3 data-i18n="coverage.speaking.title">Speaking</h3><p data-i18n="coverage.speaking.body">Build comfort answering interview questions out loud with a real person.</p><button type="button" class="subject-play" hidden aria-pressed="false" data-i18n="motion.speaking">Start the conversation</button></div>
         </div>
       </div>
     </section>

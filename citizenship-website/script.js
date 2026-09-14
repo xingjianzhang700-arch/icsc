@@ -1,6 +1,16 @@
 // ---------- Translations (EN / ES / ZH) ----------
 const I18N = {
   en: {
+    "motion.studio": "A little practice. A new chapter.",
+    "motion.rotate": "Rotate the scene",
+    "motion.reset": "Reset view",
+    "motion.eyebrow": "Step into your next chapter",
+    "motion.explore": "Explore the White House",
+    "motion.model": "The White House · a miniature in 3D",
+    "motion.civics": "Turn the seal",
+    "motion.reading": "Open the book",
+    "motion.writing": "Try the pencil",
+    "motion.speaking": "Start the conversation",
     "nav.about": "About",
     "nav.coverage": "What We Cover",
     "nav.how": "How It Works",
@@ -91,6 +101,16 @@ const I18N = {
   },
 
   es: {
+    "motion.studio": "Un poco de práctica. Un nuevo capítulo.",
+    "motion.rotate": "Gira la escena",
+    "motion.reset": "Restablecer vista",
+    "motion.eyebrow": "Comienza tu próximo capítulo",
+    "motion.explore": "Explora la Casa Blanca",
+    "motion.model": "La Casa Blanca · una miniatura en 3D",
+    "motion.civics": "Gira el emblema",
+    "motion.reading": "Abre el libro",
+    "motion.writing": "Prueba el lápiz",
+    "motion.speaking": "Inicia la conversación",
     "nav.about": "Sobre Nosotros",
     "nav.coverage": "Qué Cubrimos",
     "nav.how": "Cómo Funciona",
@@ -181,6 +201,16 @@ const I18N = {
   },
 
   zh: {
+    "motion.studio": "一点练习，开启新篇章。",
+    "motion.rotate": "旋转场景",
+    "motion.reset": "重置视角",
+    "motion.eyebrow": "迈向人生新篇章",
+    "motion.explore": "探索白宫",
+    "motion.model": "白宫 · 3D 微缩模型",
+    "motion.civics": "转动徽章",
+    "motion.reading": "打开书本",
+    "motion.writing": "试试铅笔",
+    "motion.speaking": "开始对话",
     "nav.about": "关于我们",
     "nav.coverage": "辅导内容",
     "nav.how": "运作方式",
@@ -349,4 +379,4 @@ document.querySelectorAll('input[data-na-for]').forEach(cb => {
 // ---------- Footer year ----------
 document.getElementById("year").textContent = new Date().getFullYear();
 
-// The cinematic scroll section is now a real 3D fly-in built in animations.js.
+// The interactive study scenes are progressively enhanced in animations.js.
