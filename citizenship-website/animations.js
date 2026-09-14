@@ -1,503 +1,346 @@
-/* =============================================================
-   Interlake ICSC — motion & 3D
-   - Scroll reveals (with hard failsafe)
-   - Count-up stats
-   - 3D tilt on cards
-   - Three.js floating citizenship objects (hero centerpiece)
-   All effects are opt-out under prefers-reduced-motion and degrade
-   gracefully when WebGL / IntersectionObserver are unavailable.
-   ============================================================= */
+/* Interlake ICSC — interactive study models.
+   No autoplay or scroll capture. Render only while a visible scene changes.
+   Native sliders support keyboard/touch; WebGL failure leaves static artwork. */
 (function () {
   "use strict";
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+  var clamp = function (n, min, max) { return Math.max(min, Math.min(max, n)); };
 
-  var REVEAL_SEL =
-    ".section-title, .section-lead, .card, .steps li, .review, " +
-    ".stats-band .stat, #signup .signup-form, #contact .contact-grid > *";
-
-  /* ---------- 1. Scroll reveal ---------- */
-  (function reveal() {
-    var els = Array.prototype.slice.call(document.querySelectorAll(REVEAL_SEL));
-    if (!els.length) return;
-    function showAll() { els.forEach(function (el) { el.classList.add("in"); }); }
-
-    if (reduced || !("IntersectionObserver" in window)) { showAll(); return; }
-
-    // stagger siblings so grids cascade in
-    els.forEach(function (el) {
-      var sibs = Array.prototype.slice.call(el.parentElement.children).filter(function (c) {
-        return els.indexOf(c) !== -1;
-      });
-      var i = sibs.indexOf(el);
-      el.style.transitionDelay = Math.min(i, 6) * 80 + "ms";
+  document.querySelectorAll(".subject-play").forEach(function (button) {
+    button.hidden = false;
+    button.addEventListener("click", function () {
+      var on = button.getAttribute("aria-pressed") !== "true";
+      button.setAttribute("aria-pressed", String(on));
+      button.closest(".subject-card").classList.toggle("is-active", on);
     });
+  });
 
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  // Brief, one-time entrance. No content is hidden if JS fails.
+  if ("IntersectionObserver" in window) {
+    var entrances = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entrances.unobserve(entry.target);
+        if (!reduced.matches && entry.target.animate) {
+          entry.target.animate([
+            { opacity: 0.65, transform: "translateY(14px)" },
+            { opacity: 1, transform: "translateY(0)" }
+          ], { duration: 550, easing: "cubic-bezier(.2,.7,.2,1)" });
+        }
       });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-    els.forEach(function (el) { io.observe(el); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".section-title, .subject-card, .steps li, .review").forEach(function (el) {
+      entrances.observe(el);
+    });
+    reduced.addEventListener("change", function () {
+      if (reduced.matches && document.getAnimations) {
+        document.getAnimations().forEach(function (animation) { animation.finish(); });
+      }
+    });
+  }
 
-    // absolute failsafe: never leave content hidden
-    setTimeout(showAll, 4000);
-  })();
+  var T = window.THREE;
+  if (!T) return;
+  var NAVY = 0x14306a, GOLD = 0xf5c542, PAPER = 0xfffdf6;
 
-  /* ---------- 2. Count-up stats ---------- */
-  (function counters() {
-    var nums = Array.prototype.slice.call(document.querySelectorAll(".stat-num [data-count]"));
-    if (!nums.length) return;
+  function material(color, metalness) {
+    return new T.MeshStandardMaterial({ color: new T.Color(color).convertSRGBToLinear(), roughness: metalness ? 0.35 : 0.68, metalness: metalness || 0 });
+  }
+  function mesh(group, geometry, mat, x, y, z) {
+    var item = new T.Mesh(geometry, mat);
+    item.position.set(x || 0, y || 0, z || 0);
+    group.add(item);
+    return item;
+  }
+  function box(group, w, h, d, mat, x, y, z) {
+    return mesh(group, new T.BoxGeometry(w, h, d), mat, x, y, z);
+  }
+  function starGeometry(radius, depth) {
+    var shape = new T.Shape();
+    for (var i = 0; i < 10; i++) {
+      var a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? radius * 0.44 : radius;
+      if (!i) shape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+      else shape.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    }
+    shape.closePath();
+    var geo = new T.ExtrudeGeometry(shape, { depth: depth, bevelEnabled: true, bevelSize: 0.035, bevelThickness: 0.025, bevelSegments: 2 });
+    geo.center();
+    return geo;
+  }
+  function disc(group, radius, depth, mat, x, y, z) {
+    return mesh(group, new T.CylinderGeometry(radius, radius, depth, 64), mat, x, y, z);
+  }
 
-    function run(el) {
-      var target = +el.getAttribute("data-count"), dur = 1500, t0 = performance.now();
-      (function step(t) {
-        var p = Math.min(1, (t - t0) / dur);
-        var e = 1 - Math.pow(1 - p, 3); // easeOutCubic
-        el.textContent = Math.round(target * e);
-        if (p < 1) requestAnimationFrame(step);
-      })(t0);
+  function studyModel(root) {
+    var navy = material(NAVY), gold = material(GOLD, 0.45), paper = material(PAPER), blue = material(0x799bc6);
+    var platform = disc(root, 2.8, 0.14, material(0xe9ddb8), 0, -1.5, 0);
+    platform.scale.z = 0.8;
+    disc(root, 2.35, 0.035, paper, 0, -1.405, 0).scale.z = 0.8;
+
+    // A bound study book: raised cover, visible page edges and gold emblem.
+    var book = new T.Group();
+    book.position.set(-0.7, -0.3, 0.2);
+    book.rotation.set(-0.08, 0.12, -0.13);
+    root.add(book);
+    box(book, 1.52, 2.02, 0.12, navy, 0, 0, -0.18);
+    box(book, 1.4, 1.9, 0.3, paper, 0.035, 0, 0);
+    box(book, 1.52, 2.02, 0.11, navy, 0, 0, 0.2);
+    box(book, 0.13, 2.02, 0.42, navy, -0.7, 0, 0.015);
+    for (var i = 0; i < 5; i++) {
+      box(book, 0.015, 1.78, 0.008, material(0xd7ceb6), 0.74, 0, -0.105 + i * 0.055);
+    }
+    var rim = mesh(book, new T.TorusGeometry(0.42, 0.016, 8, 48), gold, 0, 0.2, 0.265);
+    mesh(book, starGeometry(0.28, 0.035), gold, 0, 0.2, 0.3);
+    box(book, 0.68, 0.033, 0.013, gold, 0, -0.48, 0.26);
+    box(book, 0.4, 0.025, 0.013, gold, 0, -0.61, 0.26);
+    box(book, 0.16, 0.4, 0.02, gold, 0.45, -1.01, -0.03);
+
+    // Small globe on a brass stand, with latitude/longitude geometry.
+    var globe = new T.Group();
+    globe.position.set(1.22, 0.14, -0.2);
+    globe.rotation.z = -0.22;
+    root.add(globe);
+    mesh(globe, new T.SphereGeometry(0.79, 40, 24), blue, 0, 0.25, 0);
+    var ringMat = material(0xc8dded, 0.1);
+    for (var j = 0; j < 4; j++) {
+      var meridian = mesh(globe, new T.TorusGeometry(0.796, 0.008, 6, 64), ringMat, 0, 0.25, 0);
+      meridian.rotation.y = j * Math.PI / 4;
+    }
+    [-0.45, 0, 0.45].forEach(function (latitude) {
+      var lat = mesh(globe, new T.TorusGeometry(Math.sqrt(0.796 * 0.796 - latitude * latitude), 0.01, 6, 64), ringMat, 0, 0.25 + latitude, 0);
+      lat.rotation.x = Math.PI / 2;
+    });
+    var arc = mesh(globe, new T.TorusGeometry(0.91, 0.035, 8, 64, Math.PI), gold, 0, 0.25, 0);
+    arc.rotation.z = -Math.PI / 2;
+    disc(root, 0.43, 0.1, gold, 1.22, -1.28, -0.2);
+    mesh(root, new T.CylinderGeometry(0.035, 0.05, 0.62, 12), gold, 1.22, -0.97, -0.2);
+    var seal = mesh(root, starGeometry(0.42, 0.15), gold, 0.08, 1.65, 0.25);
+    seal.rotation.set(0, -0.25, 0.15);
+    return { span: 6.4, lookY: 0.05, pitch: 0.15 };
+  }
+
+  function landmarkModel(root) {
+    var stone = material(0xf6f1e2), trim = material(0xd8d6cf), navy = material(0x234263), gold = material(GOLD, 0.25);
+    var base = disc(root, 6.7, 0.3, material(0x23446f), 0, -0.35, 0);
+    base.scale.z = 0.63;
+    disc(root, 6.35, 0.06, material(0x4d776f), 0, -0.16, 0).scale.z = 0.63;
+    box(root, 5.9, 2.25, 2.9, stone, 0, 1.125, -0.45);
+    box(root, 6.12, 0.16, 3.06, trim, 0, 2.34, -0.45);
+    box(root, 6.24, 0.12, 3.15, stone, 0, 2.46, -0.45);
+    [-1, 1].forEach(function (side) {
+      box(root, 2.7, 1.3, 2.2, stone, side * 4.35, 0.65, -0.7);
+      box(root, 2.9, 0.15, 2.4, trim, side * 4.35, 1.38, -0.7);
+      for (var i = 0; i < 4; i++) {
+        box(root, 0.28, 0.68, 0.025, navy, side * 4.35 + (i - 1.5) * 0.58, 0.75, 0.413);
+      }
+    });
+    for (var row = 0; row < 2; row++) {
+      [-2.55,-1.8,-1.05,1.05,1.8,2.55].forEach(function (x) {
+        box(root, 0.42, 0.72, 0.05, trim, x, 0.68 + row * 1.0, 1.03);
+        box(root, 0.32, 0.62, 0.06, navy, x, 0.68 + row * 1.0, 1.07);
+        box(root, 0.024, 0.62, 0.015, stone, x, 0.68 + row * 1.0, 1.11);
+        box(root, 0.32, 0.025, 0.015, stone, x, 0.68 + row * 1.0, 1.11);
+      });
+    }
+    box(root, 0.55, 1.25, 0.08, navy, 0, 0.63, 1.06);
+    for (var step = 0; step < 3; step++) {
+      box(root, 3.7 - step * 0.2, 0.1, 1.6 - step * 0.25, trim, 0, step * 0.1, 1.6);
+    }
+    [-1.5,-0.9,0.9,1.5].forEach(function (x) {
+      mesh(root, new T.CylinderGeometry(0.09, 0.12, 1.95, 16), stone, x, 1.23, 1.75);
+      box(root, 0.3, 0.12, 0.3, trim, x, 2.2, 1.75);
+      box(root, 0.3, 0.12, 0.3, trim, x, 0.31, 1.75);
+    });
+    box(root, 3.7, 0.2, 1.05, stone, 0, 2.34, 1.47);
+    var shape = new T.Shape();
+    shape.moveTo(-1.87, 0); shape.lineTo(1.87, 0); shape.lineTo(0, 0.72); shape.closePath();
+    mesh(root, new T.ExtrudeGeometry(shape, { depth: 0.85, bevelEnabled: false }), stone, 0, 2.45, 1.05);
+    mesh(root, new T.CylinderGeometry(0.018, 0.018, 1.2, 8), gold, 0, 3.06, -0.5);
+    // Recognizable striped flag rather than a solid red rectangle.
+    for (var stripe = 0; stripe < 7; stripe++) {
+      box(root, 0.62, 0.05, 0.02, stripe % 2 ? stone : material(0xad3b49), 0.32, 3.56 - stripe * 0.05, -0.5);
+    }
+    box(root, 0.27, 0.18, 0.028, navy, 0.14, 3.495, -0.5);
+    [-4.9, 4.9].forEach(function (x) {
+      mesh(root, new T.CylinderGeometry(0.055, 0.08, 0.55, 8), material(0x9a8153), x, 0.18, 1.8);
+      mesh(root, new T.SphereGeometry(0.47, 16, 12), material(0x739986), x, 0.68, 1.8);
+    });
+    box(root, 1.1, 0.025, 1.7, material(0xe4d7b1), 0, -0.105, 3.0);
+    return { span: 14.9, lookY: 1.15, pitch: 0.1 };
+  }
+
+  function mount(host, builder) {
+    var viewport = host.querySelector(".scene-viewport");
+    var canvas = host.querySelector("canvas");
+    var controls = host.querySelector(".scene-controls");
+    var range = host.querySelector("[data-rotation]");
+    var reset = host.querySelector("[data-reset]");
+    var renderer, scene, camera, model, config;
+    var frame = 0, visible = true, lost = false, disposed = false;
+    var target = 0, angle = 0, pitch = 0, targetPitch = 0;
+    var drag = null, last = 0;
+
+    function showFallback() {
+      host.classList.remove("scene-ready");
+      controls.hidden = true;
+    }
+    function stop() {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      last = 0;
+    }
+    function wake() {
+      if (!disposed && !lost && visible && !document.hidden && !frame) frame = requestAnimationFrame(paint);
+    }
+    function paint(time) {
+      frame = 0;
+      var dt = last ? Math.min((time - last) / 1000, 0.05) : 1 / 60;
+      last = time;
+      var blend = reduced.matches ? 1 : 1 - Math.exp(-12 * dt);
+      angle += (target - angle) * blend;
+      pitch += (targetPitch - pitch) * blend;
+      model.rotation.y = angle;
+      model.rotation.x = config.pitch + pitch;
+      try { renderer.render(scene, camera); }
+      catch (error) { lost = true; showFallback(); return; }
+      if (Math.abs(target - angle) + Math.abs(targetPitch - pitch) > 0.0002) wake();
+      else last = 0;
+    }
+    function resize() {
+      var w = viewport.clientWidth, h = viewport.clientHeight;
+      if (!w || !h || disposed) return;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, w < 500 ? 1.5 : 2));
+      renderer.setSize(w, h, false);
+      var aspect = w / h;
+      var height = Math.max(config.span / aspect, config.span * 0.64);
+      camera.left = -height * aspect / 2; camera.right = height * aspect / 2;
+      camera.top = height / 2; camera.bottom = -height / 2;
+      camera.updateProjectionMatrix();
+      wake();
     }
 
-    if (reduced || !("IntersectionObserver" in window)) {
-      nums.forEach(function (n) { n.textContent = n.getAttribute("data-count"); });
+    try {
+      renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: "low-power" });
+      renderer.outputEncoding = T.sRGBEncoding;
+      renderer.toneMapping = T.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1;
+      scene = new T.Scene();
+      scene.add(new T.HemisphereLight(0xfff7e6, 0x677d9b, 0.55));
+      var key = new T.DirectionalLight(0xfff5df, 0.95); key.position.set(-3, 6, 8); scene.add(key);
+      var fill = new T.DirectionalLight(0xc4ddff, 0.4); fill.position.set(5, 2, -3); scene.add(fill);
+      model = new T.Group(); scene.add(model);
+      config = builder(model);
+      camera = new T.OrthographicCamera(-4, 4, 4, -4, 0.1, 100);
+      camera.position.set(0, config.lookY + 3.3, 12);
+      camera.lookAt(0, config.lookY, 0);
+      model.rotation.x = config.pitch;
+      resize();
+      renderer.render(scene, camera);
+      host.classList.add("scene-ready");
+      controls.hidden = false;
+    } catch (error) {
+      stop();
+      if (renderer) renderer.dispose();
+      showFallback();
       return;
     }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { run(e.target); io.unobserve(e.target); } });
-    }, { threshold: 0.6 });
-    nums.forEach(function (n) { io.observe(n); });
-  })();
 
-  /* ---------- 3. 3D tilt on cards ---------- */
-  (function tilt() {
-    if (reduced) return;
-    if (!window.matchMedia("(hover:hover) and (pointer:fine)").matches) return;
-    var els = document.querySelectorAll(".card, .review, .steps li");
-    var MAX = 8;
-    els.forEach(function (el) {
-      el.addEventListener("mousemove", function (ev) {
-        var r = el.getBoundingClientRect();
-        var px = (ev.clientX - r.left) / r.width - 0.5;
-        var py = (ev.clientY - r.top) / r.height - 0.5;
-        el.style.transition = "transform .08s linear";
-        el.style.transform =
-          "perspective(820px) rotateX(" + (-py * MAX).toFixed(2) + "deg) rotateY(" +
-          (px * MAX).toFixed(2) + "deg) translateZ(6px)";
-      });
-      el.addEventListener("mouseleave", function () {
-        el.style.transition = "transform .5s cubic-bezier(.2,.7,.2,1)";
-        el.style.transform = "";
-      });
+    function setRotation(degrees) {
+      range.value = String(clamp(degrees, -60, 60));
+      target = Number(range.value) * Math.PI / 180;
+      wake();
+    }
+    range.addEventListener("input", function () { setRotation(Number(range.value)); });
+    reset.addEventListener("click", function () {
+      targetPitch = 0;
+      setRotation(0);
     });
-  })();
-
-  /* ---------- 4. Three.js floating citizenship objects ---------- */
-  (function scene() {
-    if (reduced) return;                        // fallback coverage card stays visible
-    var THREE = window.THREE;
-    var host = document.getElementById("hero3d");
-    if (!THREE || !host) return;
-    var canvas = host.querySelector(".hero-canvas");
-    if (!canvas) return;
-
-    var renderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-    } catch (err) { return; }                   // no WebGL -> fallback card stays
-
-    var small = window.innerWidth < 700;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, small ? 1.5 : 2));
-    renderer.setClearColor(0x000000, 0);
-
-    host.classList.add("webgl-on");             // hide fallback, show canvas
-
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, 0, 9);
-
-    scene.add(new THREE.AmbientLight(0xfff4d6, 0.75));
-    var key = new THREE.DirectionalLight(0xffffff, 0.95); key.position.set(5, 6, 7); scene.add(key);
-    var fill = new THREE.DirectionalLight(0x9db8ff, 0.4); fill.position.set(-6, -2, 4); scene.add(fill);
-
-    var NAVY = 0x14306a, GOLD = 0xf5c542, PAPER = 0xfffef7, STONE = 0xf1f3f9;
-
-    function starShape(outer, inner, points) {
-      var s = new THREE.Shape(), step = Math.PI / points;
-      for (var i = 0; i < 2 * points; i++) {
-        var r = (i % 2) ? inner : outer, a = i * step - Math.PI / 2;
-        var x = Math.cos(a) * r, y = Math.sin(a) * r;
-        if (i === 0) s.moveTo(x, y); else s.lineTo(x, y);
+    canvas.addEventListener("pointerdown", function (event) {
+      if (event.button !== 0 || drag) return;
+      drag = { id: event.pointerId, x: event.clientX, value: Number(range.value) };
+      canvas.setPointerCapture(event.pointerId);
+    });
+    canvas.addEventListener("pointermove", function (event) {
+      if (drag && drag.id === event.pointerId) {
+        setRotation(drag.value + (event.clientX - drag.x) * 0.3);
+      } else if (finePointer.matches && !reduced.matches) {
+        var rect = canvas.getBoundingClientRect();
+        targetPitch = clamp((event.clientY - rect.top) / rect.height - 0.5, -0.5, 0.5) * 0.09;
+        wake();
       }
-      s.closePath(); return s;
+    });
+    function endDrag(event) {
+      if (!drag || event.pointerId !== drag.id) return;
+      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      drag = null;
+      targetPitch = 0;
+      wake();
     }
-    function goldMat() { return new THREE.MeshStandardMaterial({ color: GOLD, metalness: 0.45, roughness: 0.32 }); }
-
-    function makeStar() {
-      var geo = new THREE.ExtrudeGeometry(starShape(0.7, 0.3, 5),
-        { depth: 0.28, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 2 });
-      geo.center();
-      return new THREE.Mesh(geo, goldMat());
-    }
-    function makeBook() {
-      var g = new THREE.Group();
-      var page = new THREE.MeshStandardMaterial({ color: PAPER, roughness: 0.85 });
-      var cover = new THREE.MeshStandardMaterial({ color: NAVY, roughness: 0.5, metalness: 0.12 });
-      var lp = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.06, 1.35), page);
-      var rp = lp.clone();
-      lp.position.set(-0.56, 0, 0); lp.rotation.z = 0.20;
-      rp.position.set(0.56, 0, 0); rp.rotation.z = -0.20;
-      var lc = new THREE.Mesh(new THREE.BoxGeometry(1.16, 0.06, 1.5), cover);
-      var rc = lc.clone();
-      lc.position.set(-0.58, -0.10, 0); lc.rotation.z = 0.20;
-      rc.position.set(0.58, -0.10, 0); rc.rotation.z = -0.20;
-      g.add(lc, rc, lp, rp);
-      return g;
-    }
-    function makePassport() {
-      var g = new THREE.Group();
-      var body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 1.35, 0.16),
-        new THREE.MeshStandardMaterial({ color: 0x0f2350, roughness: 0.5, metalness: 0.2 }));
-      g.add(body);
-      var em = new THREE.Mesh(new THREE.ExtrudeGeometry(starShape(0.17, 0.075, 5),
-        { depth: 0.05, bevelEnabled: false }), goldMat());
-      em.position.set(0, 0.26, 0.09);
-      g.add(em);
-      var lineMat = goldMat();
-      for (var i = 0; i < 2; i++) {
-        var ln = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.055, 0.02), lineMat);
-        ln.position.set(0, -0.22 - i * 0.2, 0.09);
-        g.add(ln);
-      }
-      return g;
-    }
-    function makeDome() {
-      var g = new THREE.Group();
-      var stone = new THREE.MeshStandardMaterial({ color: STONE, roughness: 0.65 });
-      var base = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.72, 0.34, 26), stone); base.position.y = -0.42;
-      var drum = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.52, 0.36, 26), stone); drum.position.y = -0.1;
-      var dome = new THREE.Mesh(new THREE.SphereGeometry(0.46, 26, 16, 0, Math.PI * 2, 0, Math.PI / 2), stone); dome.position.y = 0.08;
-      var spire = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.26, 14), goldMat()); spire.position.y = 0.5;
-      g.add(base, drum, dome, spire);
-      // simple column ring
-      var colMat = stone;
-      for (var i = 0; i < 8; i++) {
-        var a = (i / 8) * Math.PI * 2;
-        var col = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8), colMat);
-        col.position.set(Math.cos(a) * 0.5, -0.1, Math.sin(a) * 0.5);
-        g.add(col);
-      }
-      return g;
-    }
-    function makeSparkle() {
-      return new THREE.Mesh(new THREE.TetrahedronGeometry(0.12), goldMat());
-    }
-
-    var group = new THREE.Group();
-    scene.add(group);
-
-    function place(obj, x, y, z, scale) {
-      obj.position.set(x, y, z);
-      if (scale) obj.scale.setScalar(scale);
-      obj.userData = {
-        baseY: y,
-        rx: (Math.random() - 0.5) * 0.006,
-        ry: 0.004 + Math.random() * 0.006,
-        amp: 0.12 + Math.random() * 0.14,
-        phase: Math.random() * Math.PI * 2,
-        spd: 0.6 + Math.random() * 0.5
-      };
-      group.add(obj);
-    }
-
-    var star = makeStar();
-    place(star, 0, 0.35, 0.2, 1.0);
-    place(makeBook(), -1.55, -1.35, -0.2, 1.0);
-    place(makePassport(), 1.55, -0.15, -0.5, 0.95);
-    place(makeDome(), 0.15, 1.95, -0.9, 0.92);
-
-    var sparkleCount = small ? 4 : 7;
-    for (var i = 0; i < sparkleCount; i++) {
-      var sp = makeSparkle();
-      place(sp,
-        (Math.random() - 0.5) * 4.6,
-        (Math.random() - 0.5) * 4.6,
-        (Math.random() - 0.5) * 1.5 - 0.3,
-        0.6 + Math.random() * 0.8);
-    }
-
-    // pointer parallax
-    var pointerX = 0, pointerY = 0, spinY = 0, extraY = 0, tiltX = 0;
-    window.addEventListener("mousemove", function (e) {
-      pointerX = (e.clientX / window.innerWidth) - 0.5;
-      pointerY = (e.clientY / window.innerHeight) - 0.5;
-    }, { passive: true });
-
-    function resize() {
-      var w = host.clientWidth, h = host.clientHeight;
-      if (!w || !h) return;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-    resize();
-    window.addEventListener("resize", resize);
-
-    // only render while visible
-    var visible = true;
+    canvas.addEventListener("pointerup", endDrag);
+    canvas.addEventListener("pointercancel", endDrag);
+    canvas.addEventListener("lostpointercapture", function () { drag = null; });
+    canvas.addEventListener("pointerleave", function () { targetPitch = 0; wake(); });
+    canvas.addEventListener("webglcontextlost", function (event) {
+      event.preventDefault(); lost = true; stop(); showFallback();
+    });
+    canvas.addEventListener("webglcontextrestored", function () {
+      lost = false;
+      host.classList.add("scene-ready");
+      controls.hidden = false;
+      resize();
+    });
+    var observer;
     if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (ents) {
-        visible = ents[0].isIntersecting;
-        if (visible) tick();
-      }, { threshold: 0.01 }).observe(host);
+      observer = new IntersectionObserver(function (entries) {
+        visible = entries[0].isIntersecting;
+        if (visible) wake(); else stop();
+      }, { threshold: 0.01 });
+      observer.observe(host);
     }
-
-    var clock = new THREE.Clock();
-    var running = false;
-    function tick() {
-      if (running) return;
-      running = true;
-      (function loop() {
-        if (!visible) { running = false; return; }
-        var dt = Math.min(clock.getDelta(), 0.05);
-        var t = clock.elapsedTime;
-        group.children.forEach(function (o) {
-          var u = o.userData;
-          o.rotation.x += u.rx; o.rotation.y += u.ry;
-          o.position.y = u.baseY + Math.sin(t * u.spd + u.phase) * u.amp;
-        });
-        spinY += dt * 0.16;
-        extraY += ((pointerX * 0.5) - extraY) * 0.05;
-        tiltX += ((pointerY * 0.45) - tiltX) * 0.05;
-        group.rotation.y = spinY + extraY;
-        group.rotation.x = tiltX;
-        renderer.render(scene, camera);
-        requestAnimationFrame(loop);
-      })();
+    var sizing;
+    if ("ResizeObserver" in window) {
+      sizing = new ResizeObserver(resize); sizing.observe(viewport);
+    } else window.addEventListener("resize", resize);
+    function onVisibility() { if (document.hidden) stop(); else wake(); }
+    function onMotion() {
+      targetPitch = 0;
+      // An explicit slider/drag still changes the static view, without tweening.
+      if (reduced.matches) { angle = target; pitch = 0; }
+      wake();
     }
-    tick();
-  })();
-})();
-
-/* =============================================================
-   3D White House fly-in (replaces the flat video scrub)
-   Camera dollies from far outside, between the columns, through
-   the front door, into a warm interior as you scroll. Falls back
-   to a static poster image when WebGL/desktop/motion isn't available.
-   ============================================================= */
-(function whiteHouseScrub() {
-  "use strict";
-  var THREE = window.THREE;
-  var section = document.getElementById("scrub");
-  if (!section) return;
-  var sticky = section.querySelector(".scrub-sticky");
-  var canvas = section.querySelector(".scrub-canvas");
-  var beats  = Array.prototype.slice.call(section.querySelectorAll(".scrub-beat"));
-  var cta    = section.querySelector(".scrub-cta");
-  var bar    = section.querySelector(".scrub-progress span");
-  var hint   = section.querySelector(".scrub-hint");
-  var N = beats.length;
-
-  var desktop = window.matchMedia("(min-width: 761px)");
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-  function beatOpacity(i, p) {
-    var c = (i + 0.5) / N, w = 0.62 / N;
-    if (i === 0 && p <= c) return 1;
-    if (i === N - 1 && p >= c) return 1;
-    return Math.max(0, 1 - Math.abs(p - c) / w);
-  }
-  function paintCaptions(p) {
-    for (var i = 0; i < N; i++) {
-      var o = beatOpacity(i, p);
-      beats[i].style.opacity = o.toFixed(3);
-      beats[i].style.transform = "translate(-50%, calc(-50% + " + ((1 - o) * 18).toFixed(1) + "px))";
-    }
-    var last = beatOpacity(N - 1, p);
-    if (cta) { cta.style.opacity = last.toFixed(3); cta.classList.toggle("is-on", last > 0.6); }
-    if (bar) bar.style.width = (p * 100).toFixed(2) + "%";
-    if (hint) hint.style.opacity = p > 0.03 ? "0" : "1";
-  }
-  function computeProgress() {
-    var rect = section.getBoundingClientRect();
-    var dist = rect.height - window.innerHeight;
-    if (dist <= 0) return 0;
-    return Math.min(1, Math.max(0, -rect.top / dist));
+    document.addEventListener("visibilitychange", onVisibility);
+    reduced.addEventListener("change", onMotion);
+    window.addEventListener("pagehide", function (event) {
+      stop();
+      if (event.persisted) return;
+      disposed = true;
+      if (observer) observer.disconnect();
+      if (sizing) sizing.disconnect();
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
+      reduced.removeEventListener("change", onMotion);
+      var geometries = new Set(), materials = new Set();
+      scene.traverse(function (item) {
+        if (item.geometry) geometries.add(item.geometry);
+        if (item.material) materials.add(item.material);
+      });
+      geometries.forEach(function (item) { item.dispose(); });
+      materials.forEach(function (item) { item.dispose(); });
+      renderer.dispose();
+    });
+    window.addEventListener("pageshow", function (event) { if (event.persisted) { resize(); wake(); } });
   }
 
-  var canGL = (function () {
-    try {
-      var c = document.createElement("canvas");
-      return !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl")));
-    } catch (e) { return false; }
-  })();
-
-  // Not eligible -> leave the static poster + first caption (no pin)
-  if (!THREE || !canGL || !desktop.matches || reduced.matches) return;
-
-  var renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); }
-  catch (e) { return; }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-  section.classList.add("is-live");
-
-  var SKY = 0xbfe0f5;
-  var scene = new THREE.Scene();
-  scene.background = new THREE.Color(SKY);
-  scene.fog = new THREE.Fog(SKY, 16, 48);
-
-  var camera = new THREE.PerspectiveCamera(55, 1, 0.1, 220);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.62));
-  var sun = new THREE.DirectionalLight(0xfff1d6, 1.05); sun.position.set(-8, 13, 10); scene.add(sun);
-  var warm = new THREE.PointLight(0xffd39a, 1.3, 22); warm.position.set(0, 2, -3.5); scene.add(warm);
-
-  var wallMat  = new THREE.MeshStandardMaterial({ color: 0xf4f2ea, roughness: 0.92 });
-  var roofMat  = new THREE.MeshStandardMaterial({ color: 0xd9d6cc, roughness: 0.9 });
-  var winMat   = new THREE.MeshStandardMaterial({ color: 0x24304d, roughness: 0.35, metalness: 0.25 });
-  var goldMat  = new THREE.MeshStandardMaterial({ color: 0xf5c542, metalness: 0.4, roughness: 0.35 });
-  var lawnMat  = new THREE.MeshStandardMaterial({ color: 0x6ea24a, roughness: 1 });
-  var floorMat = new THREE.MeshStandardMaterial({ color: 0x8a5a34, roughness: 0.85, side: THREE.DoubleSide });
-  var trimMat  = new THREE.MeshStandardMaterial({ color: 0x2b3550, roughness: 0.5 });
-  // interior surfaces are double-sided so the room encloses the camera when it flies in
-  var inMat    = new THREE.MeshStandardMaterial({ color: 0xece3d2, roughness: 0.9, side: THREE.DoubleSide });
-
-  var house = new THREE.Group(); scene.add(house);
-  function box(w, h, d, mat, x, y, z) {
-    var m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-    m.position.set(x, y, z); house.add(m); return m;
-  }
-
-  // lawn
-  var lawn = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), lawnMat);
-  lawn.rotation.x = -Math.PI / 2; scene.add(lawn);
-
-  // interior room (behind the front face, z < 0) — double-sided so it encloses the camera
-  box(10, 3.4, 0.2, inMat, 0, 1.7, -6);       // back wall
-  var floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 6), floorMat);
-  floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0.02, -3); scene.add(floor);
-  box(0.2, 3.4, 6, inMat, -5, 1.7, -3);       // left inner wall
-  box(0.2, 3.4, 6, inMat, 5, 1.7, -3);        // right inner wall
-  box(10, 0.2, 6, inMat, 0, 3.4, -3);          // ceiling
-
-  // gold star emblem on interior back wall
-  (function () {
-    var s = new THREE.Shape(), pts = 5, step = Math.PI / pts;
-    for (var i = 0; i < 2 * pts; i++) {
-      var r = i % 2 ? 0.22 : 0.5, a = i * step - Math.PI / 2;
-      var x = Math.cos(a) * r, y = Math.sin(a) * r;
-      if (i) s.lineTo(x, y); else s.moveTo(x, y);
-    }
-    s.closePath();
-    var em = new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: 0.08, bevelEnabled: false }), goldMat);
-    em.position.set(0, 1.95, -5.85); house.add(em);
-  })();
-
-  // front face in pieces, leaving a central doorway gap (x -1.15..1.15, y 0..2.2)
-  box(3.8, 3.4, 0.3, wallMat, -3.05, 1.7, 0);
-  box(3.8, 3.4, 0.3, wallMat,  3.05, 1.7, 0);
-  box(2.3, 1.2, 0.3, wallMat,  0, 2.8, 0);     // lintel above door
-  box(0.16, 2.2, 0.34, trimMat, -1.2, 1.1, 0); // left jamb
-  box(0.16, 2.2, 0.34, trimMat,  1.2, 1.1, 0); // right jamb
-
-  // side wings
-  box(4, 2.2, 3, wallMat, -7.2, 1.1, -1.5);
-  box(4, 2.2, 3, wallMat,  7.2, 1.1, -1.5);
-  box(4.2, 0.25, 3.2, roofMat, -7.2, 2.32, -1.5);
-  box(4.2, 0.25, 3.2, roofMat,  7.2, 2.32, -1.5);
-
-  // main roof
-  box(10.2, 0.3, 6.2, roofMat, 0, 3.55, -3);
-
-  // portico columns (front, z = 1.4); center gap aligns with the door
-  [-4, -2.4, -1.4, 1.4, 2.4, 4].forEach(function (x) {
-    var c = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 3.0, 16), wallMat);
-    c.position.set(x, 1.5, 1.4); house.add(c);
-    box(0.72, 0.18, 0.72, wallMat, x, 3.05, 1.4); // capital
-    box(0.72, 0.18, 0.72, wallMat, x, 0.05, 1.4); // base
-  });
-  box(9.2, 0.5, 0.9, wallMat, 0, 3.35, 1.4);       // entablature
-
-  // pediment (triangle)
-  (function () {
-    var t = new THREE.Shape();
-    t.moveTo(-4.6, 0); t.lineTo(4.6, 0); t.lineTo(0, 1.6); t.closePath();
-    var ped = new THREE.Mesh(new THREE.ExtrudeGeometry(t, { depth: 0.9, bevelEnabled: false }), wallMat);
-    ped.position.set(0, 3.6, 0.95); house.add(ped);
-  })();
-
-  box(9.5, 0.3, 2.4, roofMat, 0, -0.05, 2.0);      // steps / base platform
-
-  // facade windows
-  [-3.05, 3.05].forEach(function (px) {
-    for (var r = 0; r < 2; r++) for (var c = 0; c < 3; c++) {
-      box(0.55, 0.9, 0.08, winMat, px + (c - 1) * 1.0, 1.0 + r * 1.35, 0.17);
-    }
-  });
-  [-7.2, 7.2].forEach(function (px) {
-    for (var c = 0; c < 3; c++) box(0.5, 0.8, 0.08, winMat, px + (c - 1) * 1.0, 1.2, 0.03);
-  });
-
-  // flag
-  var pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.4, 8),
-    new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.6, roughness: 0.3 }));
-  pole.position.set(0, 4.95, -3); house.add(pole);
-  var flag = box(0.95, 0.55, 0.03, new THREE.MeshStandardMaterial({ color: 0xb22234, roughness: 0.75 }), 0.5, 5.7, -3);
-
-  // trees for parallax depth
-  function tree(x, z) {
-    var trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.17, 1.3, 8),
-      new THREE.MeshStandardMaterial({ color: 0x6b4a2b, roughness: 1 }));
-    trunk.position.set(x, 0.65, z); scene.add(trunk);
-    var leaves = new THREE.Mesh(new THREE.SphereGeometry(1.0, 12, 10),
-      new THREE.MeshStandardMaterial({ color: 0x3f7d3a, roughness: 1 }));
-    leaves.position.set(x, 1.9, z); scene.add(leaves);
-  }
-  tree(-10.5, 3); tree(-12.5, 6.5); tree(10.5, 3); tree(12.5, 6.5);
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
-  var tmpLook = new THREE.Vector3();
-  var pointerX = 0;
-  window.addEventListener("mousemove", function (e) { pointerX = (e.clientX / window.innerWidth - 0.5); }, { passive: true });
-
-  function updateCamera(p) {
-    var e = ease(p);
-    var camZ = lerp(24, -0.4, e);     // ends right at the doorway, peering into the warm interior
-    var camY = lerp(2.7, 1.35, e);
-    var lookZ = lerp(0, -6, e);
-    var lookY = lerp(2.0, 1.2, e);
-    var px = pointerX * lerp(1.3, 0.12, e);
-    camera.position.set(px, camY, camZ);
-    tmpLook.set(px * 0.3, lookY, lookZ);
-    camera.lookAt(tmpLook);
-    flag.rotation.y = Math.sin(performance.now() * 0.003) * 0.25;
-  }
-
-  function resize() {
-    var w = sticky.clientWidth || section.clientWidth;
-    var h = sticky.clientHeight || window.innerHeight;
-    if (!w || !h) return;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
-  }
-  resize();
-  window.addEventListener("resize", resize);
-
-  var visible = true, running = false;
-  function start() { if (running) return; running = true; loop(); }
-  function loop() {
-    if (!visible) { running = false; return; }
-    var p = computeProgress();
-    updateCamera(p);
-    paintCaptions(p);
-    renderer.render(scene, camera);
-    requestAnimationFrame(loop);
-  }
+  // Delay creating GPU resources until each model is near the viewport.
+  var hosts = [document.getElementById("hero3d"), document.getElementById("landmark3d")].filter(Boolean);
+  function initialize(host) { mount(host, host.id === "hero3d" ? studyModel : landmarkModel); }
   if ("IntersectionObserver" in window) {
-    new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) start(); },
-      { threshold: 0.001 }).observe(section);
-  }
-  updateCamera(0);
-  start();
+    var lazy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { lazy.unobserve(entry.target); initialize(entry.target); }
+      });
+    }, { rootMargin: "160px" });
+    hosts.forEach(function (host) { lazy.observe(host); });
+  } else hosts.forEach(initialize);
 })();
