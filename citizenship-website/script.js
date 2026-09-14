@@ -23,9 +23,13 @@ const I18N = {
     "hero.card.reading": "Reading",
     "hero.card.writing": "Writing",
     "hero.card.speaking": "Speaking",
+    "hero.card.badge": "Move your mouse ✦",
 
     "about.title": "About the Club",
     "about.body": "Interlake Citizenship Services Club (ICSC) is a student-run program that pairs aspiring US citizens with trained high school tutors. We provide friendly, patient support in the English language skills essential for passing the citizenship interview — completely free of charge.",
+    "stats.a": "USCIS civics questions covered",
+    "stats.b": "minutes per weekly session",
+    "stats.c": "free — no cost, ever",
 
     "coverage.title": "What We Cover",
     "coverage.civics.title": "Civics",
@@ -109,9 +113,13 @@ const I18N = {
     "hero.card.reading": "Lectura",
     "hero.card.writing": "Escritura",
     "hero.card.speaking": "Conversación",
+    "hero.card.badge": "Mueve el mouse ✦",
 
     "about.title": "Sobre el Club",
     "about.body": "El Club de Servicios de Ciudadanía de Interlake (ICSC) es un programa dirigido por estudiantes que conecta a futuros ciudadanos estadounidenses con tutores capacitados de la escuela secundaria. Brindamos apoyo amable y paciente en las habilidades de inglés esenciales para aprobar la entrevista de ciudadanía — totalmente gratis.",
+    "stats.a": "preguntas de civismo de USCIS que cubrimos",
+    "stats.b": "minutos por sesión semanal",
+    "stats.c": "gratis — sin costo, nunca",
 
     "coverage.title": "Qué Cubrimos",
     "coverage.civics.title": "Civismo",
@@ -195,9 +203,13 @@ const I18N = {
     "hero.card.reading": "阅读",
     "hero.card.writing": "写作",
     "hero.card.speaking": "口语",
+    "hero.card.badge": "移动鼠标 ✦",
 
     "about.title": "关于本社团",
     "about.body": "Interlake 公民入籍服务社团 (ICSC) 是一个由学生运营的项目，为有意成为美国公民的人提供经过培训的高中辅导员。我们提供友善、耐心的英语辅导，帮助您通过入籍面谈 — 完全免费。",
+    "stats.a": "USCIS 公民常识题全覆盖",
+    "stats.b": "每周课程时长（分钟）",
+    "stats.c": "免费 — 永远零费用",
 
     "coverage.title": "辅导内容",
     "coverage.civics.title": "公民常识",
